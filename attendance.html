@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance - Attendly</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body class="bg-bg min-h-screen">
+    <div class="layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar-container">
+            <div class="p-6 pb-8 text-xl font-bold tracking-tight flex items-center gap-3">
+                <span class="text-accent underline decoration-4 underline-offset-4">◈</span> SAMS Admin
+            </div>
+            <nav class="flex-1">
+                <a href="teacher_dashboard.html" class="sidebar-link">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="add_student.html" class="sidebar-link">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i> Add Student
+                </a>
+                <a href="students.html" class="sidebar-link">
+                    <i data-lucide="users" class="w-4 h-4"></i> View Students
+                </a>
+                <a href="attendance.html" class="sidebar-link active">
+                    <i data-lucide="clipboard-check" class="w-4 h-4"></i> Mark Attendance
+                </a>
+                <a href="reports.html" class="sidebar-link">
+                    <i data-lucide="pie-chart" class="w-4 h-4"></i> Reports
+                </a>
+            </nav>
+            <div class="p-6 mt-auto border-t border-white/10">
+                <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">Logged in as</div>
+                <div class="text-sm font-semibold truncate user-display-name">Dr. Sarah Wilson</div>
+            </div>
+        </aside>
+
+        <div class="main-viewport">
+            <header class="top-navbar">
+                <div>
+                    <h2 class="text-lg font-bold tracking-tight">Post Attendance</h2>
+                    <p class="text-[11px] text-text-muted font-medium uppercase tracking-wider">Live Classroom Entry</p>
+                </div>
+                <div class="flex gap-2">
+                    <input type="date" value="2026-04-22" class="px-3 py-1.5 border border-border rounded text-[13px] font-semibold text-text-main focus:outline-accent outline-offset-2">
+                    <select id="attendance-subject-select" class="px-3 py-1.5 border border-border rounded text-[13px] font-semibold text-text-main focus:outline-accent outline-offset-2">
+                        <!-- Dynamic subjects -->
+                    </select>
+                </div>
+            </header>
+
+            <main class="p-8">
+                <form id="attendance-form">
+                    <div class="table-wrapper mb-6">
+                        <div class="p-4 bg-slate-50 border-b border-border flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-text-main uppercase tracking-tight text-opacity-80">Class Record</h3>
+                            <button type="button" onclick="selectAll('present')" class="text-[10px] font-bold uppercase text-accent hover:underline">Select All Present</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="density-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Roll No</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-table-body">
+                                    <!-- Rows injected via script -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="btn-accent px-12">Submit Attendance Record</button>
+                    </div>
+                </form>
+            </main>
+        </div>
+    </div>
+
+
+    <script type="module" src="./src/script.js"></script>
+    <script>
+        function populateSubjects() {
+            const select = document.getElementById('attendance-subject-select');
+            const subjects = new Set();
+            
+            // Collect all unique subjects
+            window.appState.students.forEach(s => {
+                s.attendanceData.forEach(d => subjects.add(d.subject));
+            });
+            
+            // Remove General from set to re-add at top
+            subjects.delete('General');
+            const sortedSubjects = Array.from(subjects).sort();
+            
+            // Always have General at the top if it exists, or as default
+            const finalSubjects = ['General', ...sortedSubjects];
+            
+            select.innerHTML = finalSubjects.map(s => `<option value="${s}" ${s === 'General' ? 'selected' : ''}>${s === 'General' ? 'All Students (General)' : s}</option>`).join('');
+        }
+
+        function renderAttendanceTable() {
+            const tbody = document.getElementById('attendance-table-body');
+            const selectedSubject = document.getElementById('attendance-subject-select').value;
+            
+            let eligibleStudents = [];
+            
+            if (selectedSubject === 'General') {
+                // Show every single student in the system
+                eligibleStudents = window.appState.students;
+            } else {
+                // Filter students who actually have this subject
+                eligibleStudents = window.appState.students.filter(s => 
+                    s.attendanceData.some(d => d.subject === selectedSubject)
+                );
+            }
+
+            if (eligibleStudents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-text-muted italic text-[13px]">No students found for "${selectedSubject}".</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = eligibleStudents.map((student) => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-slate-800">${student.name}</td>
+                    <td class="px-6 py-4 text-slate-600">${student.rollNo}</td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex justify-center gap-4">
+                             <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="radio" name="status-${student.id}" value="present" checked class="w-4 h-4 accent-success">
+                                <span class="text-[11px] font-bold uppercase text-slate-400 group-hover:text-success transition-colors">P</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="radio" name="status-${student.id}" value="absent" class="w-4 h-4 accent-danger">
+                                <span class="text-[11px] font-bold uppercase text-slate-400 group-hover:text-danger transition-colors">A</span>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        window.selectAll = function(val) {
+             const radios = document.querySelectorAll(`input[type="radio"][value="${val}"]`);
+             radios.forEach(r => r.checked = true);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            populateSubjects();
+            renderAttendanceTable();
+            window.updateUserDisplay();
+            
+            document.getElementById('attendance-subject-select').addEventListener('change', renderAttendanceTable);
+            
+            document.getElementById('attendance-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const subject = document.getElementById('attendance-subject-select').value;
+                const date = document.querySelector('input[type="date"]').value;
+                
+                // Process each student
+                window.appState.students.forEach(student => {
+                    const statusInput = document.querySelector(`input[name="status-${student.id}"]:checked`);
+                    if (!statusInput) return; // Skip if student not in current list
+                    
+                    const isPresent = statusInput.value === 'present';
+                    let data = student.attendanceData.find(d => d.subject === subject);
+                    
+                    // If General is selected but student doesn't have it (legacy), create it
+                    if (!data && subject === 'General') {
+                        data = { subject: 'General', total: 0, attended: 0, percent: 0 };
+                        student.attendanceData.unshift(data);
+                    }
+
+                    if (data) {
+                        data.total += 1;
+                        if (isPresent) data.attended += 1;
+                        data.percent = Math.round((data.attended / data.total) * 100);
+                        
+                        // Update overall attendance
+                        const totalClasses = student.attendanceData.reduce((acc, d) => acc + d.total, 0);
+                        const totalAttended = student.attendanceData.reduce((acc, d) => acc + d.attended, 0);
+                        student.attendance = Math.round((totalAttended / totalClasses) * 100);
+                    }
+                });
+                
+                window.saveState();
+                alert(`Attendance for ${subject} on ${date} saved!`);
+                window.location.href = 'reports.html';
+            });
+        });
+        lucide.createIcons();
+    </script>
+</body>
+</html>

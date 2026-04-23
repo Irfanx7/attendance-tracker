@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Student - Attendly</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body class="bg-bg min-h-screen">
+    <div class="layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar-container">
+            <div class="p-6 pb-8 text-xl font-bold tracking-tight flex items-center gap-3">
+                <span class="text-accent underline decoration-4 underline-offset-4">◈</span> SAMS Admin
+            </div>
+            <nav class="flex-1">
+                <a href="teacher_dashboard.html" class="sidebar-link">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="add_student.html" class="sidebar-link active">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i> Add Student
+                </a>
+                <a href="students.html" class="sidebar-link">
+                    <i data-lucide="users" class="w-4 h-4"></i> View Students
+                </a>
+                <a href="attendance.html" class="sidebar-link">
+                    <i data-lucide="clipboard-check" class="w-4 h-4"></i> Mark Attendance
+                </a>
+                <a href="reports.html" class="sidebar-link">
+                    <i data-lucide="pie-chart" class="w-4 h-4"></i> Reports
+                </a>
+            </nav>
+            <div class="p-6 mt-auto border-t border-white/10">
+                <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">Logged in as</div>
+                <div class="text-sm font-semibold truncate user-display-name">Dr. Sarah Wilson</div>
+            </div>
+        </aside>
+
+        <div class="main-viewport">
+            <header class="top-navbar">
+                <div>
+                    <h2 class="text-lg font-bold tracking-tight">Enroll New Student</h2>
+                    <p class="text-[11px] text-text-muted font-medium uppercase tracking-wider">Registration Form</p>
+                </div>
+            </header>
+
+            <main class="p-8">
+                <div class="max-w-2xl mx-auto">
+                    <div class="density-card">
+                        <div class="border-b border-border pb-4 mb-6">
+                            <h3 class="text-sm font-bold uppercase tracking-tight text-text-main">Student Particulars</h3>
+                        </div>
+                        <form id="add-student-form" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-1.5">
+                                    <label class="text-[11px] font-bold uppercase text-text-muted">Full Name</label>
+                                    <input type="text" id="student-name" class="w-full px-3 py-2 border border-border rounded text-[13px] focus:outline-accent" placeholder="e.g. Robert Brown" required>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[11px] font-bold uppercase text-text-muted">Roll Number</label>
+                                    <input type="text" id="student-roll" class="w-full px-3 py-2 border border-border rounded text-[13px] focus:outline-accent" placeholder="e.g. CS2026-089" required>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold uppercase text-text-muted">Department</label>
+                                <select id="student-dept" class="w-full px-3 py-2 border border-border rounded text-[13px] focus:outline-accent bg-white">
+                                    <option value="">Select Department</option>
+                                    <option value="Information Technology">Information Technology</option>
+                                    <option value="Computer Science" selected>Computer Science</option>
+                                    <option value="Electronics & Communication">Electronics & Communication</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold uppercase text-text-muted">Subjects (comma separated)</label>
+                                <input type="text" id="student-subjects" class="w-full px-3 py-2 border border-border rounded text-[13px] focus:outline-accent" placeholder="e.g. OS, Networking, AI">
+                            </div>
+
+                            <div class="pt-6 flex gap-3">
+                                <button type="submit" class="btn-accent flex-1">Save Student Profile</button>
+                                <button type="reset" class="btn-ghost flex-1">Reset Fields</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <script type="module" src="./src/script.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('add-student-form');
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const name = document.getElementById('student-name').value;
+          const rollNo = document.getElementById('student-roll').value;
+          const dept = document.getElementById('student-dept').value;
+          const subjects = document.getElementById('student-subjects').value;
+          
+          if (name && rollNo && dept) {
+            window.addStudent({ name, rollNo, dept, subjects });
+            alert('Student added successfully!');
+            window.location.href = 'students.html';
+          } else {
+            alert('Please fill all required fields.');
+          }
+        });
+      });
+    </script>
+</body>
+</html>

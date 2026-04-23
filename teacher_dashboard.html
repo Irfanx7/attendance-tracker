@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - Attendly</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body class="bg-bg min-h-screen">
+    <div class="layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar-container">
+            <div class="p-6 pb-8 text-xl font-bold tracking-tight flex items-center gap-3">
+                <span class="text-accent underline decoration-4 underline-offset-4">◈</span> SAMS Admin
+            </div>
+            <nav class="flex-1">
+                <a href="teacher_dashboard.html" class="sidebar-link active">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="add_student.html" class="sidebar-link">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i> Add Student
+                </a>
+                <a href="students.html" class="sidebar-link">
+                    <i data-lucide="users" class="w-4 h-4"></i> View Students
+                </a>
+                <a href="attendance.html" class="sidebar-link">
+                    <i data-lucide="clipboard-check" class="w-4 h-4"></i> Mark Attendance
+                </a>
+                <a href="reports.html" class="sidebar-link">
+                    <i data-lucide="pie-chart" class="w-4 h-4"></i> Reports
+                </a>
+            </nav>
+            <div class="p-6 mt-auto border-t border-white/10">
+                <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">Logged in as</div>
+                <div class="text-sm font-semibold truncate user-display-name">Dr. Sarah Wilson</div>
+            </div>
+        </aside>
+
+        <div class="main-viewport">
+            <!-- Top Bar -->
+            <header class="top-navbar">
+                <div>
+                    <h2 class="text-lg font-bold tracking-tight">Academic Overview</h2>
+                    <p class="text-[11px] text-text-muted font-medium uppercase tracking-wider">Admin Control Panel</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <div class="text-xs font-bold text-text-main">Comp. Science Dept.</div>
+                        <div class="text-[10px] text-text-muted font-semibold uppercase">Head Faculty</div>
+                    </div>
+                    <a href="index.html" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-border hover:bg-slate-200 transition-colors">
+                        <i data-lucide="log-out" class="w-4 h-4 text-text-muted"></i>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="p-8 space-y-8">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="density-card">
+                        <div class="stat-label">Total Students</div>
+                        <div id="stat-total-students" class="stat-value text-slate-900">0</div>
+                    </div>
+                    <div class="density-card">
+                        <div class="stat-label">Overall Presence</div>
+                        <div id="stat-avg-presence" class="stat-value text-success">0%</div>
+                    </div>
+                    <div class="density-card">
+                        <div class="stat-label">Defaulters (&lt;75%)</div>
+                        <div id="stat-defaulters" class="stat-value text-danger">0</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="density-card space-y-4">
+                        <div class="flex justify-between items-center border-b border-border pb-3">
+                            <h3 class="text-sm font-bold uppercase tracking-tight text-text-main">Recent Reports</h3>
+                            <a href="reports.html" class="text-accent text-[11px] font-bold uppercase hover:underline">View All</a>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-border">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
+                                    <span class="text-[13px] font-medium text-slate-700">Database Systems - Sem 4</span>
+                                </div>
+                                <span class="text-[11px] font-bold text-slate-400">2H AGO</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-border">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
+                                    <span class="text-[13px] font-medium text-slate-700">Digital Logic - Sem 2</span>
+                                </div>
+                                <span class="text-[11px] font-bold text-slate-400">4H AGO</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="density-card space-y-4">
+                        <div class="flex justify-between items-center border-b border-border pb-3">
+                            <h3 class="text-sm font-bold uppercase tracking-tight text-text-main">Quick Actions</h3>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <a href="add_student.html" class="p-4 bg-slate-50 border border-border rounded-lg hover:border-accent hover:bg-blue-50 transition-all flex flex-col items-center gap-2">
+                                <i data-lucide="user-plus" class="w-5 h-5 text-accent"></i>
+                                <span class="text-[11px] font-bold uppercase text-slate-600">Enroll Student</span>
+                            </a>
+                            <a href="attendance.html" class="p-4 bg-slate-50 border border-border rounded-lg hover:border-accent hover:bg-blue-50 transition-all flex flex-col items-center gap-2">
+                                <i data-lucide="check-square" class="w-5 h-5 text-accent"></i>
+                                <span class="text-[11px] font-bold uppercase text-slate-600">Mark Attendance</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <script type="module" src="./src/script.js"></script>
+    <script>
+      function updateDashboardStats() {
+          const totalStudents = window.appState.students.length;
+          const defaulters = window.appState.students.filter(s => s.attendance < 75).length;
+          
+          // Calculate overall attendance average
+          const avgAttendance = totalStudents > 0 
+            ? Math.round(window.appState.students.reduce((acc, s) => acc + s.attendance, 0) / totalStudents)
+            : 0;
+
+          document.getElementById('stat-total-students').textContent = totalStudents.toLocaleString();
+          document.getElementById('stat-avg-presence').textContent = avgAttendance + '%';
+          document.getElementById('stat-defaulters').textContent = defaulters;
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+          updateDashboardStats();
+          window.updateUserDisplay();
+      });
+      lucide.createIcons();
+    </script>
+</body>
+</html>

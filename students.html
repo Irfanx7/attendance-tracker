@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Students - Attendly</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body class="bg-bg min-h-screen">
+    <div class="layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar-container">
+            <div class="p-6 pb-8 text-xl font-bold tracking-tight flex items-center gap-3">
+                <span class="text-accent underline decoration-4 underline-offset-4">◈</span> SAMS Admin
+            </div>
+            <nav class="flex-1">
+                <a href="teacher_dashboard.html" class="sidebar-link">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="add_student.html" class="sidebar-link">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i> Add Student
+                </a>
+                <a href="students.html" class="sidebar-link active">
+                    <i data-lucide="users" class="w-4 h-4"></i> View Students
+                </a>
+                <a href="attendance.html" class="sidebar-link">
+                    <i data-lucide="clipboard-check" class="w-4 h-4"></i> Mark Attendance
+                </a>
+                <a href="reports.html" class="sidebar-link">
+                    <i data-lucide="pie-chart" class="w-4 h-4"></i> Reports
+                </a>
+            </nav>
+            <div class="p-6 mt-auto border-t border-white/10">
+                <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">Logged in as</div>
+                <div class="text-sm font-semibold truncate user-display-name">Dr. Sarah Wilson</div>
+            </div>
+        </aside>
+
+        <div class="main-viewport">
+            <header class="top-navbar">
+                <div>
+                    <h2 class="text-lg font-bold tracking-tight">Student Directory</h2>
+                    <p class="text-[11px] text-text-muted font-medium uppercase tracking-wider">Database Records</p>
+                </div>
+                <a href="add_student.html" class="btn-accent">Add New Student</a>
+            </header>
+
+            <main class="p-8">
+                <div class="table-wrapper">
+                    <div class="p-4 bg-slate-50 border-b border-border flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-text-main uppercase tracking-tight">Enrollment List</h3>
+                        <div class="flex items-center gap-2">
+                            <label class="text-[10px] font-bold uppercase text-text-muted">Filter By Dept:</label>
+                            <select id="students-dept-filter" class="px-2 py-1 border border-border rounded text-[12px] bg-white focus:outline-accent">
+                                <option value="all">All Departments</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Electronics & Communication">Electronics & Communication</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="density-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Roll Number</th>
+                                    <th>Department</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-table-body">
+                                <!-- Rows injected via script -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-8 text-center space-y-6">
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="trash-2" class="w-8 h-8"></i>
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-xl font-bold text-slate-900">Delete Student?</h3>
+                <p class="text-slate-500">This action cannot be undone. All attendance data for this student will be lost.</p>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="closeModal()" class="btn-secondary flex-1">Cancel</button>
+                <button onclick="confirmDelete()" class="bg-red-600 text-white flex-1 py-2.5 rounded-lg font-medium hover:bg-red-700 transition-colors">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Student Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-slate-900">Edit Student Details</h3>
+                <button onclick="closeEditModal()" class="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="edit-student-form" class="space-y-4">
+                <input type="hidden" id="edit-student-id">
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold uppercase text-text-muted">Student Full Name</label>
+                    <input type="text" id="edit-student-name" class="w-full px-3 py-2 border border-border rounded text-[13px] focus:outline-accent" required>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold uppercase text-text-muted">Roll Number</label>
+                    <input type="text" id="edit-student-roll" class="w-full px-3 py-2 border border-border rounded text-[13px] focus:outline-accent" required>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold uppercase text-text-muted">Department</label>
+                    <select id="edit-student-dept" class="w-full px-3 py-2 border border-border rounded text-[13px] focus:outline-accent">
+                        <option value="Information Technology">Information Technology</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Electronics & Communication">Electronics & Communication</option>
+                    </select>
+                </div>
+                <div class="flex gap-4 pt-4">
+                    <button type="button" onclick="closeEditModal()" class="btn-secondary flex-1">Cancel</button>
+                    <button type="submit" class="btn-accent flex-1">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="./src/script.js"></script>
+    <script>
+        let studentToDelete = null;
+
+        function renderStudents() {
+            const tbody = document.getElementById('student-table-body');
+            const filterValue = document.getElementById('students-dept-filter').value;
+            
+            const filteredStudents = filterValue === 'all' 
+                ? window.appState.students 
+                : window.appState.students.filter(s => s.dept === filterValue);
+
+            if (filteredStudents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-text-muted italic text-[13px]">No students found in the selected department.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filteredStudents.map(student => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-slate-800">${student.name}</td>
+                    <td class="px-6 py-4 text-slate-600">${student.rollNo}</td>
+                    <td class="px-6 py-4 text-slate-600">${student.dept}</td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <button onclick="openEditModal('${student.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="openDeleteModal('${student.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        window.openDeleteModal = function(id) {
+            studentToDelete = id;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('delete-modal').classList.add('hidden');
+            studentToDelete = null;
+        }
+
+        window.confirmDelete = function() {
+            if (studentToDelete) {
+                window.appState.students = window.appState.students.filter(s => s.id !== studentToDelete);
+                window.saveState();
+                renderStudents();
+                closeModal();
+            }
+        }
+
+        window.openEditModal = function(id) {
+            const student = window.appState.students.find(s => s.id === id);
+            if (student) {
+                document.getElementById('edit-student-id').value = student.id;
+                document.getElementById('edit-student-name').value = student.name;
+                document.getElementById('edit-student-roll').value = student.rollNo;
+                document.getElementById('edit-student-dept').value = student.dept;
+                document.getElementById('edit-modal').classList.remove('hidden');
+            }
+        }
+
+        window.closeEditModal = function() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        document.getElementById('edit-student-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-student-id').value;
+            const updatedData = {
+                name: document.getElementById('edit-student-name').value,
+                rollNo: document.getElementById('edit-student-roll').value,
+                dept: document.getElementById('edit-student-dept').value
+            };
+            
+            if (window.updateStudent(id, updatedData)) {
+                alert('Student details updated successfully!');
+                renderStudents();
+                closeEditModal();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStudents();
+            window.updateUserDisplay();
+            
+            document.getElementById('students-dept-filter').addEventListener('change', renderStudents);
+        });
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Reports - Attendly</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body class="bg-bg min-h-screen">
+    <div class="layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar-container">
+            <div class="p-6 pb-8 text-xl font-bold tracking-tight flex items-center gap-3">
+                <span class="text-accent underline decoration-4 underline-offset-4">◈</span> SAMS Admin
+            </div>
+            <nav class="flex-1">
+                <a href="teacher_dashboard.html" class="sidebar-link">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
+                </a>
+                <a href="add_student.html" class="sidebar-link">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i> Add Student
+                </a>
+                <a href="students.html" class="sidebar-link">
+                    <i data-lucide="users" class="w-4 h-4"></i> View Students
+                </a>
+                <a href="attendance.html" class="sidebar-link">
+                    <i data-lucide="clipboard-check" class="w-4 h-4"></i> Mark Attendance
+                </a>
+                <a href="reports.html" class="sidebar-link active">
+                    <i data-lucide="pie-chart" class="w-4 h-4"></i> Reports
+                </a>
+            </nav>
+            <div class="p-6 mt-auto border-t border-white/10">
+                <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">Logged in as</div>
+                <div class="text-sm font-semibold truncate user-display-name">Dr. Sarah Wilson</div>
+            </div>
+        </aside>
+
+        <div class="main-viewport">
+            <header class="top-navbar">
+                <div>
+                    <h2 class="text-lg font-bold tracking-tight">Attendance Reports</h2>
+                    <p class="text-[11px] text-text-muted font-medium uppercase tracking-wider">Performance Analysis</p>
+                </div>
+            </header>
+
+            <main class="p-8">
+                <div id="reports-container" class="space-y-12">
+                    <!-- Dynamic reports grouped by Dept and Subject -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <script type="module" src="./src/script.js"></script>
+    <script>
+        function renderReports() {
+            const container = document.getElementById('reports-container');
+            const students = window.appState.students;
+            
+            // Group data: Dept -> Subject -> Students
+            const groupedData = {};
+
+            students.forEach(student => {
+                const dept = student.dept || 'Unassigned';
+                if (!groupedData[dept]) groupedData[dept] = {};
+                
+                student.attendanceData.forEach(data => {
+                    if (!groupedData[dept][data.subject]) groupedData[dept][data.subject] = [];
+                    groupedData[dept][data.subject].push({
+                        name: student.name,
+                        rollNo: student.rollNo,
+                        ...data
+                    });
+                });
+            });
+
+            const depts = Object.keys(groupedData).sort();
+            
+            if (depts.length === 0) {
+                container.innerHTML = `
+                    <div class="density-card p-20 text-center text-text-muted italic border-dashed">
+                        No enrollment data found to generate reports.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = depts.map(dept => {
+                const subjects = Object.keys(groupedData[dept]).sort();
+                
+                return `
+                    <section class="space-y-6">
+                        <div class="flex items-center gap-4">
+                            <h2 class="text-xl font-black italic tracking-tighter text-slate-900 uppercase">${dept}</h2>
+                            <div class="h-px flex-1 bg-slate-200"></div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 gap-8">
+                            ${subjects.map(subject => {
+                                const subjectStudents = groupedData[dept][subject];
+                                return `
+                                    <div class="table-wrapper">
+                                        <div class="p-4 bg-slate-50 border-b border-border flex justify-between items-center">
+                                            <h3 class="text-xs font-bold text-accent uppercase tracking-widest flex items-center gap-2">
+                                                <i data-lucide="book-open" class="w-3 h-3"></i>
+                                                ${subject}
+                                            </h3>
+                                            <span class="text-[10px] font-bold text-text-muted uppercase">${subjectStudents.length} Students</span>
+                                        </div>
+                                        <div class="overflow-x-auto">
+                                            <table class="density-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Student Name</th>
+                                                        <th>Roll No</th>
+                                                        <th class="text-center">Total</th>
+                                                        <th class="text-center">Attended</th>
+                                                        <th class="text-right">Percentage</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    ${subjectStudents.map(s => {
+                                                        const isDefaulter = s.percent < 75;
+                                                        return `
+                                                            <tr class="hover:bg-slate-50 transition-colors">
+                                                                <td class="px-6 py-4 font-medium text-slate-800">${s.name}</td>
+                                                                <td class="px-6 py-4 text-slate-500 text-xs">${s.rollNo}</td>
+                                                                <td class="px-6 py-4 text-center text-slate-600 font-mono text-xs">${s.total}</td>
+                                                                <td class="px-6 py-4 text-center text-slate-600 font-mono text-xs">${s.attended}</td>
+                                                                <td class="px-6 py-4 text-right">
+                                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter ${isDefaulter ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                                                                        ${s.percent}%
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        `;
+                                                    }).join('')}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </section>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderReports();
+            window.updateUserDisplay();
+        });
+    </script>
+</body>
+</html>
